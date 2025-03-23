@@ -156,9 +156,8 @@ where
 				err!(TextDecode("UTF-16 string has an invalid length (< 2)"));
 			}
 
-			if raw_bytes.len() % 2 != 0 {
-				err!(TextDecode("UTF-16 string has an odd length"));
-			}
+			// Ignore odd-length strings.
+			let bytes_to_read = (raw_bytes.len() >> 1) << 1;
 
 			let bom_to_check;
 			if options.bom == [0, 0] {
@@ -170,11 +169,11 @@ where
 			match bom_to_check {
 				[0xFE, 0xFF] => {
 					bom = [0xFE, 0xFF];
-					utf16_decode_bytes(&raw_bytes[2..], u16::from_be_bytes)?
+					utf16_decode_bytes(&raw_bytes[2..bytes_to_read], u16::from_be_bytes)?
 				},
 				[0xFF, 0xFE] => {
 					bom = [0xFF, 0xFE];
-					utf16_decode_bytes(&raw_bytes[2..], u16::from_le_bytes)?
+					utf16_decode_bytes(&raw_bytes[2..bytes_to_read], u16::from_le_bytes)?
 				},
 				_ => err!(TextDecode("UTF-16 string has an invalid byte order mark")),
 			}
