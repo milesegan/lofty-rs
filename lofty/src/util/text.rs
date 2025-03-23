@@ -2,6 +2,7 @@ use crate::error::{ErrorKind, LoftyError, Result};
 use crate::macros::err;
 
 use std::io::Read;
+use std::os::macos::raw;
 
 use byteorder::ReadBytesExt;
 
@@ -156,8 +157,8 @@ where
 				err!(TextDecode("UTF-16 string has an invalid length (< 2)"));
 			}
 
-			// Ignore odd-length strings.
-			let bytes_to_read = (raw_bytes.len() >> 1) << 1;
+			// Ignore last byte in odd-length strings.
+			let bytes_to_read = raw_bytes.len() - raw_bytes.len() % 2;
 
 			let bom_to_check;
 			if options.bom == [0, 0] {
