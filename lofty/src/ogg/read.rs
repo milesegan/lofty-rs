@@ -207,6 +207,44 @@ where
 					},
 				}
 			},
+			// Support the case of DISCNUMBER being equal to current/total
+			k if k.eq_ignore_ascii_case(b"DISCNUMBER") => {
+				match utf8_decode_str(value) {
+					Ok(value) => {
+						if !parse_options.implicit_conversions {
+							tag.items
+								.push((String::from("DISCNUMBER"), value.to_owned()));
+							continue;
+						}
+
+						// try to parse as current/total
+						let mut value_split = value.splitn(2, '/');
+						let disc_number: Option<u32> =
+							value_split.next().and_then(|b| b.parse().ok());
+						let disc_total: Option<u32> =
+							value_split.next().and_then(|b| b.parse().ok());
+
+						if let Some(n) = disc_number {
+							tag.set_disk(n);
+						} else {
+							// Not numeric (e.g., vinyl style), leave to caller.
+							tag.items
+								.push((String::from("DISCNUMBER"), value.to_owned()));
+						}
+						if let Some(n) = disc_total {
+							tag.set_disk_total(n);
+						}
+					},
+					Err(e) => {
+						if parse_mode == ParsingMode::Strict {
+							return Err(e);
+						}
+
+						log::warn!("Non UTF-8 value found, discarding field {key:?}");
+						continue;
+					},
+				}
+			},
 			// The valid range is 0x20..=0x7D not including 0x3D
 			k if k.iter().all(|c| (b' '..=b'}').contains(c) && *c != b'=') => {
 				// SAFETY: We just verified that all of the bytes fall within the subset of ASCII
