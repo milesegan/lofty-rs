@@ -81,6 +81,8 @@ path = "../examples/tag_writer.rs"
 name = "tag_stripper"
 path = "../examples/tag_stripper.rs"
 
+
+
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]

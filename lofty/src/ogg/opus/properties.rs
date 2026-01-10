@@ -121,7 +121,7 @@ where
 
 	if let Ok(last_page) = last_page {
 		let first_page_abgp = first_page_header.abgp;
-		let last_page_abgp = last_page.header().abgp;
+		let last_page_abgp = last_page.abgp;
 
 		let total_samples = last_page_abgp
 			.saturating_sub(first_page_abgp)

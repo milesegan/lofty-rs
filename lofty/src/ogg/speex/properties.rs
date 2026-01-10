@@ -153,7 +153,7 @@ where
 	let mut length = 1000;
 	if let Ok(last_page) = last_page {
 		let first_page_abgp = first_page_header.abgp;
-		let last_page_abgp = last_page.header().abgp;
+		let last_page_abgp = last_page.abgp;
 
 		if properties.sample_rate > 0 {
 			let total_samples = last_page_abgp.saturating_sub(first_page_abgp);
