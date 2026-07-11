@@ -1120,6 +1120,27 @@ fn flag_item_conversion() {
 }
 
 #[test_log::test]
+fn work_txxx_roundtrip() {
+	// `ItemKey::Work` must serialize as `TXXX:WORK`; a bare "WORK" text frame was
+	// rejected with `BadFrame("WORK", "Text")`.
+	let mut tag = Tag::new(TagType::Id3v2);
+	tag.insert_text(ItemKey::Work, "Symphony No. 5".to_owned());
+
+	let id3v2: Id3v2Tag = tag.into();
+	assert_eq!(id3v2.get_user_text("WORK"), Some("Symphony No. 5"));
+
+	let mut buffer = Vec::new();
+	id3v2
+		.dump_to(&mut buffer, WriteOptions::default())
+		.expect("writing ItemKey::Work to ID3v2 should succeed");
+	assert!(!buffer.is_empty());
+
+	// And it round-trips back to `ItemKey::Work`.
+	let tag: Tag = id3v2.into();
+	assert_eq!(tag.get_string(ItemKey::Work), Some("Symphony No. 5"));
+}
+
+#[test_log::test]
 fn itunes_advisory_roundtrip() {
 	use crate::mp4::{AdvisoryRating, Ilst};
 

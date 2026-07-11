@@ -135,7 +135,6 @@ pub(crate) fn from_tag<'a>(
 			| ItemKey::InternetRadioStationName
 			| ItemKey::InternetRadioStationOwner
 			| ItemKey::Remixer
-			| ItemKey::Work
 			| ItemKey::Movement
 			| ItemKey::FileOwner
 			| ItemKey::CopyrightMessage
@@ -165,7 +164,10 @@ pub(crate) fn from_tag<'a>(
 			| ItemKey::MusicBrainzWorkId
 			| ItemKey::MusicBrainzReleaseType
 			| ItemKey::ReleaseCountry
-			| ItemKey::Barcode => {
+			| ItemKey::Barcode
+			// `Work` is written as `TXXX:WORK`; as a plain text frame its id starts
+			// with 'W' and `verify_frame` rejects it.
+			| ItemKey::Work => {
 				let (value, _) = take_item_text_and_description(item)?;
 
 				let frame_id = item_key.map_key(TagType::Id3v2).expect("valid frame id");
